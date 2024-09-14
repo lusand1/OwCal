@@ -105,11 +105,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @objc func refreshClicked() {
-        checkUpdate()
         let defaults = UserDefaults.standard
         let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
         guard let button = statusItem.button else { return }
         button.title = emoji + StatusBarTitle.refreshing
+        checkUpdate()
         updateTime(isRefreshClicked: true)
     }
     
@@ -177,7 +177,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = "ddMMMyyyy"
         
-        let todayDateTer = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s --head 'http://hr.rsquanta.com/HRUI/Webui/' | grep -i 'date' | awk '{print $3$4$5}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
+        let todayDateTer = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m5 --head 'http://hr.rsquanta.com/HRUI/Webui/' | grep -i 'date' | awk '{print $3$4$5}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard let todayDate = dateFormatter.date(from: todayDateTer) else {
             return nil
