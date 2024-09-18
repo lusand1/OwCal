@@ -15,9 +15,9 @@ func findValidURLAndCheckAccess() -> (String?, String?) {
         return (nil, "请设置工号")
     }
     
-    Cookie = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -i --data-raw 'name=A7116053&password=BBc%4012345&refer=site%2F' 'http://172.18.26.15/decision/index.php/Login/checkLogin.html' | grep 'Set-Cookie' | awk -F':|;' '{print $2}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
+    Cookie = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m4 -i --data-raw 'name=A7116053&password=BBc%4012345&refer=site%2F' 'http://172.18.26.15/decision/index.php/Login/checkLogin.html' | grep 'Set-Cookie' | awk -F':|;' '{print $2}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
     
-    let serverInfoHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -L 'http://172.18.26.15/decision/index.php/Login/checkLogin.html' -H 'Cookie: \(Cookie)' --data-raw 'name=A7116053&password=BBc%4012345&refer=site%2F'"]).1
+    let serverInfoHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m4 -L 'http://172.18.26.15/decision/index.php/Login/checkLogin.html' -H 'Cookie: \(Cookie)' --data-raw 'name=A7116053&password=BBc%4012345&refer=site%2F'"]).1
     let serverInfo = serverInfoHtml.replacingOccurrences(of: "'", with: "'\\''")
     let serverIP = run_shell(launchPath: "/bin/bash", arguments: ["-c", "echo '\(serverInfo)' | grep -o 'name=\"shortnum\" value=\".*' | awk -F 'value=\"|\">' {'print $2'}"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
     
@@ -26,7 +26,7 @@ func findValidURLAndCheckAccess() -> (String?, String?) {
     }
     
     let serverAddress = "http://\(serverIP):8888/?filename=/Users/dog/AccessList/list.xlsx"
-    let accessListHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m 5 '\(serverAddress)'"]).1
+    let accessListHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m4 '\(serverAddress)'"]).1
     
     let htmlEmpID = "<td>" + empID + "</td>"
     if accessListHtml.contains(htmlEmpID) {

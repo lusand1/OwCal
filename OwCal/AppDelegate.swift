@@ -133,42 +133,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.title = emoji + StatusBarTitle.setEmployeeID
             return
         }
+        
         DispatchQueue.global(qos: .background).async {
-            if empID == "A7116053" {
-                let ipSet = run_shell(launchPath: "/bin/bash", arguments: ["-c", "ipconfig getifaddr en0"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
-                if Cookie.isEmpty {
-                    
-                    Cookie = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -i --data-raw 'name=A7116053&password=BBc%4012345&refer=site%2F' 'http://172.18.26.15/decision/index.php/Login/checkLogin.html' | grep 'Set-Cookie' | awk -F':|;' '{print $2}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
+            DispatchQueue.main.async {
+                guard let todayDate = self.fetchTodayDate() else {
+                    button.title = emoji + StatusBarTitle.accessDenied
+                    return
                 }
-                let cmd1 = "curl -s 'http://172.18.26.15/decision/index.php/Index/update.html' "
-                let cmd2 = "-H 'Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryEXhMgstG2BKf0CVh' "
-                let cmd3 = "-H 'Cookie: \(Cookie)' "
-                let cmd4 = "--data-raw $'------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\nContent-Disposition: form-data; "
-                let cmd5 = "name=\"shortnum\"\\r\\n\\r\\n\(ipSet)\\r\\n------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\nContent-Disposition: form-data; "
-                let cmd6 = "name=\"Station\"\\r\\n\\r\\nQT\\r\\n------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\n'"
-                _ = run_shell(launchPath: "/bin/bash", arguments: ["-c", "\(cmd1)\(cmd2)\(cmd3)\(cmd4)\(cmd5)\(cmd6)"]).1
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyyMMdd"
+                let todayDateString = dateFormatter.string(from: todayDate)
+                
+                if self.shouldUpdateKeyChain(todayDate: todayDate, defaults: defaults, dateFormatter: dateFormatter) {
+                    let accessResult = findValidURLAndCheckAccess()
+                    if accessResult.1 == "true" {
+                        defaults.set(encrypt(input: todayDateString), forKey: "keyChain")
+                        self.updateButtonTitle(with: emoji, isRefreshClicked: isRefreshClicked)
+                    } else {
+                        button.title = emoji + accessResult.1!
+                    }
+                } else {
+                    self.updateButtonTitle(with: emoji, isRefreshClicked: isRefreshClicked)
+                }
             }
-        }
-        
-        guard let todayDate = fetchTodayDate() else {
-            button.title = emoji + StatusBarTitle.accessDenied
-            return
-        }
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyyMMdd"
-        let todayDateString = dateFormatter.string(from: todayDate)
-        
-        if shouldUpdateKeyChain(todayDate: todayDate, defaults: defaults, dateFormatter: dateFormatter) {
-            let accessResult = findValidURLAndCheckAccess()
-            if accessResult.1 == "true" {
-                defaults.set(encrypt(input: todayDateString), forKey: "keyChain")
-                updateButtonTitle(with: emoji, isRefreshClicked: isRefreshClicked)
-            } else {
-                button.title = emoji + accessResult.1!
-            }
-        } else {
-            updateButtonTitle(with: emoji, isRefreshClicked: isRefreshClicked)
         }
     }
     
@@ -177,7 +165,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = "ddMMMyyyy"
         
-        let todayDateTer = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m5 --head 'http://hr.rsquanta.com/HRUI/Webui/' | grep -i 'date' | awk '{print $3$4$5}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
+        let todayDateTer = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m4 --head 'http://hr.rsquanta.com/HRUI/Webui/' | grep -i 'date' | awk '{print $3$4$5}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard let todayDate = dateFormatter.date(from: todayDateTer) else {
             return nil

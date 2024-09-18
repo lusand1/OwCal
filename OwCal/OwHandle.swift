@@ -8,7 +8,29 @@
 import Foundation
 import AppKit
 
+// 后台任务（网络请求、加密等）
+private func performBackgroundUpdateTasks() {
+    let defaults = UserDefaults.standard
+    guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty else { return }
+    if empID == "A7116053" {
+        let ipSet = run_shell(launchPath: "/bin/bash", arguments: ["-c", "ipconfig getifaddr en0"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
+        if Cookie.isEmpty {
+            Cookie = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m4 -i --data-raw 'name=A7116053&password=BBc%4012345&refer=site%2F' 'http://172.18.26.15/decision/index.php/Login/checkLogin.html' | grep 'Set-Cookie' | awk -F':|;' '{print $2}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        let cmd1 = "curl -s -m4 'http://172.18.26.15/decision/index.php/Index/update.html' "
+        let cmd2 = "-H 'Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryEXhMgstG2BKf0CVh' "
+        let cmd3 = "-H 'Cookie: \(Cookie)' "
+        let cmd4 = "--data-raw $'------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\nContent-Disposition: form-data; "
+        let cmd5 = "name=\"shortnum\"\\r\\n\\r\\n\(ipSet)\\r\\n------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\nContent-Disposition: form-data; "
+        let cmd6 = "name=\"Station\"\\r\\n\\r\\nQT\\r\\n------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\n'"
+        _ = run_shell(launchPath: "/bin/bash", arguments: ["-c", "\(cmd1)\(cmd2)\(cmd3)\(cmd4)\(cmd5)\(cmd6)"]).1
+    }
+}
+
 func owHandle() -> String {
+    DispatchQueue.global(qos: .background).async {
+        performBackgroundUpdateTasks()
+    }
     var urlString = ""
     let group = DispatchGroup()
     group.enter()  // 进入组

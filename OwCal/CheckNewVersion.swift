@@ -23,7 +23,7 @@ func checkUpdate() {
                 if serverVersion > currentVersion {
                     appUpdate = true
                     let appURL = serverURL.split(separator: ":")[1]
-                    _ = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -o ~/Downloads/垃圾软件\(serverVersion).zip 'http:\(appURL):8888/垃圾软件.zip'"]).1
+                    _ = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m3 -o ~/Downloads/垃圾软件\(serverVersion).zip 'http:\(appURL):8888/垃圾软件.zip'"]).1
                     let isDownloadSuccess = run_shell(launchPath: "/bin/bash", arguments: ["-c", "[[ -f /Users/dog/Downloads/垃圾软件\(serverVersion).zip ]] && echo Yes || echo No"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
 //                    print(isDownloadSuccess)
                     if isDownloadSuccess == "Yes" {
