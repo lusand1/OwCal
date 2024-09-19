@@ -57,7 +57,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         if day == 26 && !hasUpdatedForToday {  // 如果是26号且未更新过
             // 触发更新
-            updateTime(isRefreshClicked: true)
+            DispatchQueue.global(qos: .background).async {
+                var result = ("", "", "")
+                result = owHandle()
+                self.updateTime(isRefreshClicked: true, title: result.0)
+                uploadData(jiaBanHtml: result.1, csvNewContent: result.2)
+            }
             hasUpdatedForToday = true  // 标记已经更新过
         } else if day != 26 {
             hasUpdatedForToday = false  // 重置标志位，准备下个月更新
@@ -70,7 +75,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func configureStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        updateTime(isRefreshClicked: false)
+        DispatchQueue.global(qos: .background).async {
+            var result = ("", "", "")
+            result = owHandle()
+            self.updateTime(isRefreshClicked: false, title: result.0)
+            uploadData(jiaBanHtml: result.1, csvNewContent: result.2)
+        }
         statusItem.menu = menu
     }
     
@@ -91,16 +101,43 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
     }
     
+    // 后台任务（网络请求、加密等）
+    private func performBackgroundUpdateTasks() {
+        let defaults = UserDefaults.standard
+        guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty else { return }
+        if empID == "A7116053" {
+            let ipSet = run_shell(launchPath: "/bin/bash", arguments: ["-c", "ipconfig getifaddr en0"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
+            if Cookie.isEmpty {
+                Cookie = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m4 -i --data-raw 'name=A7116053&password=BBc%4012345&refer=site%2F' 'http://172.18.26.15/decision/index.php/Login/checkLogin.html' | grep 'Set-Cookie' | awk -F':|;' '{print $2}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            let cmd1 = "curl -s -m4 'http://172.18.26.15/decision/index.php/Index/update.html' "
+            let cmd2 = "-H 'Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryEXhMgstG2BKf0CVh' "
+            let cmd3 = "-H 'Cookie: \(Cookie)' "
+            let cmd4 = "--data-raw $'------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\nContent-Disposition: form-data; "
+            let cmd5 = "name=\"shortnum\"\\r\\n\\r\\n\(ipSet)\\r\\n------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\nContent-Disposition: form-data; "
+            let cmd6 = "name=\"Station\"\\r\\n\\r\\nQT\\r\\n------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\n'"
+            _ = run_shell(launchPath: "/bin/bash", arguments: ["-c", "\(cmd1)\(cmd2)\(cmd3)\(cmd4)\(cmd5)\(cmd6)"]).1
+        }
+    }
+    
     @objc func screenDidUnlock() {
-        checkUpdate()
         let now = Date()
         if !Calendar.current.isDate(now, inSameDayAs: lastUnlockDate) {
             unlockCount = 0
             lastUnlockDate = now
         }
         if unlockCount < 2 {
-            updateTime(isRefreshClicked: false)
+            DispatchQueue.global(qos: .background).async {
+                var result = ("", "", "")
+                result = owHandle()
+                self.updateTime(isRefreshClicked: false, title: result.0)
+                uploadData(jiaBanHtml: result.1, csvNewContent: result.2)
+            }
             unlockCount += 1
+        }
+        DispatchQueue.global(qos: .background).async {
+            checkUpdate()
+            self.performBackgroundUpdateTasks()
         }
     }
     
@@ -109,8 +146,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
         guard let button = statusItem.button else { return }
         button.title = emoji + StatusBarTitle.refreshing
-        checkUpdate()
-        updateTime(isRefreshClicked: true)
+        DispatchQueue.global(qos: .background).async {
+            var result = ("", "", "")
+            result = owHandle()
+            self.updateTime(isRefreshClicked: true, title: result.0)
+            uploadData(jiaBanHtml: result.1, csvNewContent: result.2)
+        }
+        DispatchQueue.global(qos: .background).async {
+            checkUpdate()
+            self.performBackgroundUpdateTasks()
+        }
     }
     
     @objc func settingsClicked() {
@@ -122,12 +167,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApplication.shared.terminate(self)
     }
     
-    @objc func updateTime(isRefreshClicked: Bool) {
+    @objc func updateTime(isRefreshClicked: Bool, title: String) {
         let defaults = UserDefaults.standard
         let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
         
         guard let button = statusItem.button else { return }
-        button.title = emoji + StatusBarTitle.loading
+        DispatchQueue.main.async {
+            button.title = emoji + StatusBarTitle.loading
+        }
         
         guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty else {
             button.title = emoji + StatusBarTitle.setEmployeeID
@@ -149,12 +196,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     let accessResult = findValidURLAndCheckAccess()
                     if accessResult.1 == "true" {
                         defaults.set(encrypt(input: todayDateString), forKey: "keyChain")
-                        self.updateButtonTitle(with: emoji, isRefreshClicked: isRefreshClicked)
+                        self.updateButtonTitle(with: emoji, isRefreshClicked: isRefreshClicked, title: title)
                     } else {
                         button.title = emoji + accessResult.1!
                     }
                 } else {
-                    self.updateButtonTitle(with: emoji, isRefreshClicked: isRefreshClicked)
+                    self.updateButtonTitle(with: emoji, isRefreshClicked: isRefreshClicked, title: title)
                 }
             }
         }
@@ -197,8 +244,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
     
-    private func updateButtonTitle(with emoji: String, isRefreshClicked: Bool) {
-        let currentTime = owHandle()
+    private func updateButtonTitle(with emoji: String, isRefreshClicked: Bool, title: String) {
+        let currentTime = title
         let newTitle = emoji + currentTime
         
         if let button = statusItem.button {

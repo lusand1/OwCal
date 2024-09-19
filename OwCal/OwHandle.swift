@@ -8,74 +8,32 @@
 import Foundation
 import AppKit
 
-// 后台任务（网络请求、加密等）
-private func performBackgroundUpdateTasks() {
+// 获取CheckBox的UserDefaults的值或默认值
+func getStateValue(forKey key: String, defaultValue: Int = 1) -> NSControl.StateValue {
     let defaults = UserDefaults.standard
-    guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty else { return }
-    if empID == "A7116053" {
-        let ipSet = run_shell(launchPath: "/bin/bash", arguments: ["-c", "ipconfig getifaddr en0"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
-        if Cookie.isEmpty {
-            Cookie = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m4 -i --data-raw 'name=A7116053&password=BBc%4012345&refer=site%2F' 'http://172.18.26.15/decision/index.php/Login/checkLogin.html' | grep 'Set-Cookie' | awk -F':|;' '{print $2}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        let cmd1 = "curl -s -m4 'http://172.18.26.15/decision/index.php/Index/update.html' "
-        let cmd2 = "-H 'Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryEXhMgstG2BKf0CVh' "
-        let cmd3 = "-H 'Cookie: \(Cookie)' "
-        let cmd4 = "--data-raw $'------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\nContent-Disposition: form-data; "
-        let cmd5 = "name=\"shortnum\"\\r\\n\\r\\n\(ipSet)\\r\\n------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\nContent-Disposition: form-data; "
-        let cmd6 = "name=\"Station\"\\r\\n\\r\\nQT\\r\\n------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\n'"
-        _ = run_shell(launchPath: "/bin/bash", arguments: ["-c", "\(cmd1)\(cmd2)\(cmd3)\(cmd4)\(cmd5)\(cmd6)"]).1
+    if let value = defaults.object(forKey: key) as? Int {
+        return .init(rawValue: value)
+    } else {
+        return .init(rawValue: defaultValue)
     }
 }
 
-func owHandle() -> String {
-    DispatchQueue.global(qos: .background).async {
-        performBackgroundUpdateTasks()
-    }
-    var urlString = ""
-    let group = DispatchGroup()
-    group.enter()  // 进入组
-    DispatchQueue.global(qos: .background).async {
-        // 这里执行的操作不会阻塞主线程
-        let accessResult = findValidURLAndCheckAccess()
-        if let url = accessResult.0 {
-            urlString = url
-            serverURL = url
-            let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "未知版本"
-            _ = run_shell(launchPath: "/bin/bash", arguments: ["-c", "echo $(date) $(hostname) $(ipconfig getifaddr en0) Version:\(appVersion) | curl -s -m 3 -X POST \"\(url)\" -H \"X-Custom-Filename: Connection.log\" -H \"X-Write-Mode: a\" --data-binary @-"]).1
-        } else {
-//            print("找不到服务器")
-        }
-        group.leave()  // 离开组，表示这个异步任务完成
-    }
-    
-    if appUpdate {
-        return "[请使用最新版本]"
-    }
-    
+func owHandle() -> (String, String, String) {
     var fullTitle = "[***]"
-    
+    var owDataStr = ""
     let defaults = UserDefaults.standard
     
     guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty else {
-        return "[请设置工号]"
+        return ("[请设置工号]", "", "")
     }
     guard let hrPwd = defaults.string(forKey: "secureTextField"), !hrPwd.isEmpty else {
-        return "[请设置密码]"
+        return ("[请设置密码]", "", "")
     }
     
     let upLimit = defaults.string(forKey: "upperLimit") ?? "60"
     let fileManager = FileManager.default
     let desktopURL = fileManager.urls(for: .desktopDirectory, in: .userDomainMask).first!
     let folderPath = defaults.string(forKey: "folderPath") ?? desktopURL.appendingPathComponent("加班历史记录").path
-    
-    // 获取CheckBox的UserDefaults的值或默认值
-    func getStateValue(forKey key: String, defaultValue: Int = 1) -> NSControl.StateValue {
-        if let value = defaults.object(forKey: key) as? Int {
-            return .init(rawValue: value)
-        } else {
-            return .init(rawValue: defaultValue)
-        }
-    }
     
     DispatchQueue.global(qos: .background).async {
         let autoNet = getStateValue(forKey: "autoNet")
@@ -86,7 +44,7 @@ func owHandle() -> String {
     
     guard let rawExecutablePath = Bundle.main.path(forResource: ".test.data", ofType: nil) else {
 //        print("无法找到二进制可执行文件")
-        return "找不到数据文件"
+        return ("[找不到数据文件]", "", "")
     }
     let executablePath = rawExecutablePath.replacingOccurrences(of: " ", with: "\\ ")
     
@@ -129,48 +87,7 @@ func owHandle() -> String {
     //                        print("写入文件时发生错误: \(error)")
                         }
                     }
-                }
-                
-                let isCloudSave = getStateValue(forKey: "cloudSave")
-                if isCloudSave.rawValue == 1 {
-                    // 等待异步任务findValidURLAndCheckAccess完成
-                    group.notify(queue: DispatchQueue.global(qos: .background)) {
-                        // 将字符串转换为 Data
-                        if let data = "\(jiaBanHtml)".data(using: .utf8) {
-                            // 创建 URL 对象
-                            if let url = URL(string: urlString) {
-                                // 创建请求对象
-                                var request = URLRequest(url: url)
-                                request.httpMethod = "POST"
-                                request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
-                                let prefixRecordName = run_shell(launchPath: "/bin/bash", arguments: ["-c", "echo $(hostname | cut -d'.' -f1)_$(date \"+%Y-%m-%d\")_Record.html"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
-                                request.setValue("ClientRecord/" + prefixRecordName, forHTTPHeaderField: "X-Custom-Filename")
-                                request.setValue("w", forHTTPHeaderField: "X-Write-Mode")
-                                
-                                // 设置请求体
-                                request.httpBody = data
-                                
-                                // 创建 URLSession 数据任务
-                                let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                                    // 这里处理响应
-                                    if let _ = error {
-                                        //                                    print("请求失败: \(error)")
-                                        return
-                                    }
-                                    
-                                    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-                                        //                                    print("请求成功")
-                                    } else {
-                                        //                                    print("请求返回了错误的状态码")
-                                    }
-                                }
-                                
-                                // 启动任务
-                                task.resume()
-                            }
-                        }
-                    }
-                }
+                }                
             }
         }
         
@@ -279,7 +196,7 @@ func owHandle() -> String {
                             }
                             if try !gvLeavRow.text().contains("公假") && !gvLeavRow.text().contains("年休假") && !gvLeavRow.text().contains("补休假") && !gvLeavRow.text().contains("保健假") {
                                 guard let leavTime = Double(try gvLeavCells.get(7).text()) else {
-                                    return "[无法识别\(try gvAttnCells.get(3).text())请假状况]"
+                                    return ("[无法识别\(try gvAttnCells.get(3).text())请假状况]", "", "")
                                 }
                                 v_total_lev += Int(leavTime * 60)
                             }
@@ -290,20 +207,20 @@ func owHandle() -> String {
                         if let weekdayOwTime = calWeekdayOWTime(xiaBanTime: try gvAttnCells.get(5).text(), banBie: try gvAttnCells.get(7).text()) {
                             owTime = weekdayOwTime
                         } else {
-                            return "[计算\(try gvAttnCells.get(3).text())加班出错]"
+                            return ("[计算\(try gvAttnCells.get(3).text())加班出错]", "", "")
                         }
                     } else if try gvAttnRow.attr("style").contains("Pink") || gvAttnRow.attr("style").contains("Yellow") {
                         if let weekendHolidayOwTime = calWeekendHolidayOWTime(shBanTime: try gvAttnCells.get(4).text(), xiaBanTime: try gvAttnCells.get(5).text(), banBie: try gvAttnCells.get(7).text()) {
                             owTime = weekendHolidayOwTime
                         } else {
-                            return "[计算\(try gvAttnCells.get(3).text())加班出错]"
+                            return ("[计算\(try gvAttnCells.get(3).text())加班出错]", "", "")
                         }
                     } else {
-                        return "[无法识别\(try gvAttnCells.get(3).text())是平时还是节假日]"
+                        return ("[无法识别\(try gvAttnCells.get(3).text())是平时还是节假日]", "", "")
                     }
                     
                     guard let lateTimeInt = Int(lateTime) else {
-                        return "[无法识别\(try gvAttnCells.get(3).text())迟到状况]"
+                        return ("[无法识别\(try gvAttnCells.get(3).text())迟到状况]", "", "")
                     }
                     let v_owTime = owTime - lateTimeInt - v_total_lev
                     
@@ -328,6 +245,7 @@ func owHandle() -> String {
                 let totalOwHour = String(format: "%.2f", floor(Double(totalOwMin) / 60 * 100) / 100)
                 let v_totalOwHour = String(format: "%.2f", floor(Double(v_totalOwMin) / 60 * 100) / 100)
                 let csvNewContent = csvContent + "总加班,,,,,,\(totalOwHour),\(v_totalOwMin),\(v_totalOwHour)"
+                owDataStr = csvNewContent
                 if currentDay == "26" {
                     DispatchQueue.global(qos: .background).async {
                         if saveHistory.rawValue == 1 {
@@ -338,17 +256,6 @@ func owHandle() -> String {
             //                        print("解码后的内容已写入到 \(filePath.path)")
                                 } catch {
             //                        print("写入文件时发生错误: \(error)")
-                                }
-                            }
-                        }
-                        let isCloudSave = getStateValue(forKey: "cloudSave")
-                        if isCloudSave.rawValue == 1 {
-                            // 等待所有异步任务findValidURLAndCheckAccess完成
-                            group.notify(queue: DispatchQueue.global(qos: .background)) {
-                                if !urlString.isEmpty {
-                                    _ = run_shell(launchPath: "/bin/bash", arguments: ["-c", "echo \"\(csvNewContent)\" | curl -s -m 3 -X POST \"\(urlString)\" -H \"X-Custom-Filename: ClientRecord/$(hostname | cut -d'.' -f1)_$(date \"+%Y-%m-%d\")_ow.csv\" -H \"X-Write-Mode: w\" --data-binary @-"]).1
-                                    //                        print(csvNewContent)
-                                    //                        print("urlString", urlString)
                                 }
                             }
                         }
@@ -391,5 +298,5 @@ func owHandle() -> String {
         fullTitle = "[无法访问加班页面]"
     }
     
-    return fullTitle
+    return (fullTitle, jiaBanHtml, owDataStr)
 }

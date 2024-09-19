@@ -27,6 +27,9 @@ func findValidURLAndCheckAccess() -> (String?, String?) {
     
     let serverAddress = "http://\(serverIP):8888/?filename=/Users/dog/AccessList/list.xlsx"
     let accessListHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m4 '\(serverAddress)'"]).1
+    if accessListHtml.isEmpty {
+        return (nil, "服务器未启动")
+    }
     
     let htmlEmpID = "<td>" + empID + "</td>"
     if accessListHtml.contains(htmlEmpID) {
