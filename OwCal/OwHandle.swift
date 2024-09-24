@@ -278,7 +278,11 @@ func owHandle() -> (String, String, String) {
             }
             
             let restOwTime = round(((Double(upLimit) ?? 60) - (Double(stringOwTime) ?? 0)) * 100) / 100
-            var titleRestOwTime = "[剩余 " + String(restOwTime) + "H]"
+            var restOwTimeStr = String(restOwTime)
+            if restOwTime < 0 {
+                restOwTimeStr = "0"
+            }
+            var titleRestOwTime = "[剩余 " + restOwTimeStr + "H]"
             let isShowRest = getStateValue(forKey: "shengYu")
             if isShowRest.rawValue == 0 {
                 titleRestOwTime = ""

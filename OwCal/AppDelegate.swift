@@ -76,6 +76,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func configureStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         DispatchQueue.global(qos: .background).async {
+            DispatchQueue.main.async {
+                let defaults = UserDefaults.standard
+                let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
+                if let button = self.statusItem.button {
+                    button.title = emoji + StatusBarTitle.loading
+                }
+            }
             var result = ("", "", "")
             result = owHandle()
             self.updateTime(isRefreshClicked: false, title: result.0)
