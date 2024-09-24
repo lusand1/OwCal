@@ -102,7 +102,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // 后台任务（网络请求、加密等）
-    private func performBackgroundUpdateTasks() {
+    private func setIPtoQCloud() {
         let defaults = UserDefaults.standard
         guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty else { return }
         if empID == "A7116053" {
@@ -128,6 +128,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         if unlockCount < 2 {
             DispatchQueue.global(qos: .background).async {
+                DispatchQueue.main.async {
+                    let defaults = UserDefaults.standard
+                    let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
+                    if let button = self.statusItem.button {
+                        button.title = emoji + StatusBarTitle.loading
+                    }
+                }
                 var result = ("", "", "")
                 result = owHandle()
                 self.updateTime(isRefreshClicked: false, title: result.0)
@@ -137,7 +144,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         DispatchQueue.global(qos: .background).async {
             checkUpdate()
-            self.performBackgroundUpdateTasks()
+            self.setIPtoQCloud()
         }
     }
     
@@ -154,7 +161,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         DispatchQueue.global(qos: .background).async {
             checkUpdate()
-            self.performBackgroundUpdateTasks()
+            self.setIPtoQCloud()
         }
     }
     
@@ -172,9 +179,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
         
         guard let button = statusItem.button else { return }
-        DispatchQueue.main.async {
-            button.title = emoji + StatusBarTitle.loading
-        }
         
         guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty else {
             button.title = emoji + StatusBarTitle.setEmployeeID
