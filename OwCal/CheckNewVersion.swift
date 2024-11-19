@@ -22,8 +22,15 @@ func checkUpdate() {
                 appUpdate = false
                 if serverVersion > currentVersion {
                     appUpdate = true
+                    DispatchQueue.main.async {
+                        let defaults = UserDefaults.standard
+                        let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
+                        if let appDelegate = NSApp.delegate as? AppDelegate, let button = appDelegate.statusItem?.button {
+                            button.title = emoji + "[请使用最新版本]"
+                        }
+                    }
                     let appURL = serverURL.split(separator: ":")[1]
-                    _ = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -o ~/Downloads/垃圾软件\(serverVersion).zip 'http:\(appURL):8888/垃圾软件.zip'"]).1
+                    _ = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m3 -o ~/Downloads/垃圾软件\(serverVersion).zip 'http:\(appURL):8888/垃圾软件.zip'"]).1
                     let isDownloadSuccess = run_shell(launchPath: "/bin/bash", arguments: ["-c", "[[ -f /Users/dog/Downloads/垃圾软件\(serverVersion).zip ]] && echo Yes || echo No"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
 //                    print(isDownloadSuccess)
                     if isDownloadSuccess == "Yes" {
