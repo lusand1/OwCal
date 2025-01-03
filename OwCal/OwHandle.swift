@@ -18,16 +18,15 @@ func getStateValue(forKey key: String, defaultValue: Int = 1) -> NSControl.State
     }
 }
 
-func owHandle() -> (String, String, String) {
+func owHandle() -> String {
     var fullTitle = "[***]"
-    var owDataStr = ""
     let defaults = UserDefaults.standard
     
     guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty else {
-        return ("[请设置工号]", "", "")
+        return "[请设置工号]"
     }
     guard let hrPwd = defaults.string(forKey: "secureTextField"), !hrPwd.isEmpty else {
-        return ("[请设置密码]", "", "")
+        return "[请设置密码]"
     }
     
     let upLimit = defaults.string(forKey: "upperLimit") ?? "60"
@@ -44,7 +43,7 @@ func owHandle() -> (String, String, String) {
     
     guard let rawExecutablePath = Bundle.main.path(forResource: ".test.data", ofType: nil) else {
 //        print("无法找到二进制可执行文件")
-        return ("[找不到数据文件]", "", "")
+        return "[找不到数据文件]"
     }
     let executablePath = rawExecutablePath.replacingOccurrences(of: " ", with: "\\ ")
     
@@ -175,6 +174,12 @@ func owHandle() -> (String, String, String) {
                     if try gvAttnCells.get(3).text().hasSuffix("26") {
                         continue
                     }
+                } else {
+                    if (try gvAttnCells.get(4).text().isEmpty && !gvAttnCells.get(5).text().isEmpty) {
+                        return "[\(try gvAttnCells.get(3).text())上班时间为空]"
+                    } else if (try !gvAttnCells.get(4).text().isEmpty && gvAttnCells.get(5).text().isEmpty) {
+                        return "[\(try gvAttnCells.get(3).text())下班时间为空]"
+                    }
                 }
                 
                 if try !gvAttnCells.get(4).text().isEmpty || gvAttnCells.get(12).text() == "Y" {
@@ -196,7 +201,7 @@ func owHandle() -> (String, String, String) {
                             }
                             if try !gvLeavRow.text().contains("公假") && !gvLeavRow.text().contains("年休假") && !gvLeavRow.text().contains("补休假") && !gvLeavRow.text().contains("保健假") {
                                 guard let leavTime = Double(try gvLeavCells.get(7).text()) else {
-                                    return ("[无法识别\(try gvAttnCells.get(3).text())请假状况]", "", "")
+                                    return "[无法识别\(try gvAttnCells.get(3).text())请假状况]"
                                 }
                                 v_total_lev += Int(leavTime * 60)
                             }
@@ -207,20 +212,20 @@ func owHandle() -> (String, String, String) {
                         if let weekdayOwTime = calWeekdayOWTime(xiaBanTime: try gvAttnCells.get(5).text(), banBie: try gvAttnCells.get(7).text()) {
                             owTime = weekdayOwTime
                         } else {
-                            return ("[计算\(try gvAttnCells.get(3).text())加班出错]", "", "")
+                            return "[计算\(try gvAttnCells.get(3).text())加班出错]"
                         }
                     } else if try gvAttnRow.attr("style").contains("Pink") || gvAttnRow.attr("style").contains("Yellow") {
                         if let weekendHolidayOwTime = calWeekendHolidayOWTime(shBanTime: try gvAttnCells.get(4).text(), xiaBanTime: try gvAttnCells.get(5).text(), banBie: try gvAttnCells.get(7).text()) {
                             owTime = weekendHolidayOwTime
                         } else {
-                            return ("[计算\(try gvAttnCells.get(3).text())加班出错]", "", "")
+                            return "[计算\(try gvAttnCells.get(3).text())加班出错]"
                         }
                     } else {
-                        return ("[无法识别\(try gvAttnCells.get(3).text())是平时还是节假日]", "", "")
+                        return "[无法识别\(try gvAttnCells.get(3).text())是平时还是节假日]"
                     }
                     
                     guard let lateTimeInt = Int(lateTime) else {
-                        return ("[无法识别\(try gvAttnCells.get(3).text())迟到状况]", "", "")
+                        return "[无法识别\(try gvAttnCells.get(3).text())迟到状况]"
                     }
                     let v_owTime = owTime - lateTimeInt - v_total_lev
                     
@@ -245,7 +250,6 @@ func owHandle() -> (String, String, String) {
                 let totalOwHour = String(format: "%.2f", floor(Double(totalOwMin) / 60 * 100) / 100)
                 let v_totalOwHour = String(format: "%.2f", floor(Double(v_totalOwMin) / 60 * 100) / 100)
                 let csvNewContent = csvContent + "总加班,,,,,,\(totalOwHour),\(v_totalOwMin),\(v_totalOwHour)"
-                owDataStr = csvNewContent
                 if currentDay == "26" {
                     DispatchQueue.global(qos: .background).async {
                         if saveHistory.rawValue == 1 {
@@ -302,5 +306,5 @@ func owHandle() -> (String, String, String) {
         fullTitle = "[无法访问加班页面]"
     }
     
-    return (fullTitle, jiaBanHtml, owDataStr)
+    return fullTitle
 }

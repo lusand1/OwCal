@@ -13,7 +13,6 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     @IBOutlet weak var autoMeal: NSButton!
     @IBOutlet weak var saveHistory: NSButton!
     @IBOutlet weak var isCalToday: NSButton!
-    @IBOutlet weak var cloudSave: NSButton!
     
     @IBOutlet weak var shangBan: NSButton!
     @IBOutlet weak var jiaBan: NSButton!
@@ -77,7 +76,6 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         autoMeal.state = defaults.object(forKey: "autoMeal") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "autoMeal")) : .on
         saveHistory.state = defaults.object(forKey: "saveHistory") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "saveHistory")) : .on
         isCalToday.state = defaults.object(forKey: "isCalToday") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "isCalToday")) : .on
-        cloudSave.state = defaults.object(forKey: "cloudSave") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "cloudSave")) : .on
         shangBan.state = defaults.object(forKey: "shangBan") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "shangBan")) : .on
         jiaBan.state = defaults.object(forKey: "jiaBan") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "jiaBan")) : .on
         shengYu.state = defaults.object(forKey: "shengYu") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "shengYu")) : .on
@@ -99,7 +97,6 @@ class ViewController: NSViewController, NSTextFieldDelegate {
         defaults.set(autoMeal.state.rawValue, forKey: "autoMeal")
         defaults.set(saveHistory.state.rawValue, forKey: "saveHistory")
         defaults.set(isCalToday.state.rawValue, forKey: "isCalToday")
-        defaults.set(cloudSave.state.rawValue, forKey: "cloudSave")
         defaults.set(shangBan.state.rawValue, forKey: "shangBan")
         defaults.set(jiaBan.state.rawValue, forKey: "jiaBan")
         defaults.set(shengYu.state.rawValue, forKey: "shengYu")

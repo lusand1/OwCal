@@ -7,9 +7,6 @@
 
 import Cocoa
 
-var serverURL = ""
-var appUpdate = false
-
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
     var mainWindowController: NSWindowController?
@@ -26,7 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         static let loading = "Loading..."
         static let refreshing = "Refreshing"
         static let setEmployeeID = "[请设置工号]"
-        static let accessDenied = "[⏰❌]"
+        static let accessDenied = "[无法获取当前时间]"
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -57,12 +54,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         if day == 26 && !hasUpdatedForToday {  // 如果是26号且未更新过
             // 触发更新
-            DispatchQueue.global(qos: .background).async {
-                var result = ("", "", "")
-                result = owHandle()
-                self.updateTime(isRefreshClicked: true, title: result.0)
-                uploadData(jiaBanHtml: result.1, csvNewContent: result.2)
-            }
+            updateTime(isRefreshClicked: true)
             hasUpdatedForToday = true  // 标记已经更新过
         } else if day != 26 {
             hasUpdatedForToday = false  // 重置标志位，准备下个月更新
@@ -75,19 +67,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func configureStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        DispatchQueue.global(qos: .background).async {
-            DispatchQueue.main.async {
-                let defaults = UserDefaults.standard
-                let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
-                if let button = self.statusItem.button {
-                    button.title = emoji + StatusBarTitle.loading
-                }
-            }
-            var result = ("", "", "")
-            result = owHandle()
-            self.updateTime(isRefreshClicked: false, title: result.0)
-            uploadData(jiaBanHtml: result.1, csvNewContent: result.2)
+        let defaults = UserDefaults.standard
+        let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
+        if let button = statusItem.button {
+            button.title = emoji + StatusBarTitle.loading
         }
+        updateTime(isRefreshClicked: false)
         statusItem.menu = menu
     }
     
@@ -108,25 +93,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
     }
     
-    // 后台任务（网络请求、加密等）
-    private func setIPtoQCloud() {
-        let defaults = UserDefaults.standard
-        guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty else { return }
-        if empID == "A7116053" {
-            let ipSet = run_shell(launchPath: "/bin/bash", arguments: ["-c", "ipconfig getifaddr en0"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
-            if Cookie.isEmpty {
-                Cookie = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m4 -i --data-raw 'name=A7116053&password=BBc%4012345&refer=site%2F' 'http://172.18.26.15/decision/index.php/Login/checkLogin.html' | grep 'Set-Cookie' | awk -F':|;' '{print $2}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            let cmd1 = "curl -s -m4 'http://172.18.26.15/decision/index.php/Index/update.html' "
-            let cmd2 = "-H 'Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryEXhMgstG2BKf0CVh' "
-            let cmd3 = "-H 'Cookie: \(Cookie)' "
-            let cmd4 = "--data-raw $'------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\nContent-Disposition: form-data; "
-            let cmd5 = "name=\"shortnum\"\\r\\n\\r\\n\(ipSet)\\r\\n------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\nContent-Disposition: form-data; "
-            let cmd6 = "name=\"Station\"\\r\\n\\r\\nQT\\r\\n------WebKitFormBoundaryEXhMgstG2BKf0CVh\\r\\n'"
-            _ = run_shell(launchPath: "/bin/bash", arguments: ["-c", "\(cmd1)\(cmd2)\(cmd3)\(cmd4)\(cmd5)\(cmd6)"]).1
-        }
-    }
-    
     @objc func screenDidUnlock() {
         let now = Date()
         if !Calendar.current.isDate(now, inSameDayAs: lastUnlockDate) {
@@ -134,24 +100,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             lastUnlockDate = now
         }
         if unlockCount < 2 {
-            DispatchQueue.global(qos: .background).async {
-                DispatchQueue.main.async {
-                    let defaults = UserDefaults.standard
-                    let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
-                    if let button = self.statusItem.button {
-                        button.title = emoji + StatusBarTitle.loading
-                    }
-                }
-                var result = ("", "", "")
-                result = owHandle()
-                self.updateTime(isRefreshClicked: false, title: result.0)
-                uploadData(jiaBanHtml: result.1, csvNewContent: result.2)
+            let defaults = UserDefaults.standard
+            let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
+            if let button = statusItem.button {
+                button.title = emoji + StatusBarTitle.loading
             }
+            updateTime(isRefreshClicked: false)
             unlockCount += 1
-        }
-        DispatchQueue.global(qos: .background).async {
-            checkUpdate()
-            self.setIPtoQCloud()
         }
     }
     
@@ -160,16 +115,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
         guard let button = statusItem.button else { return }
         button.title = emoji + StatusBarTitle.refreshing
-        DispatchQueue.global(qos: .background).async {
-            var result = ("", "", "")
-            result = owHandle()
-            self.updateTime(isRefreshClicked: true, title: result.0)
-            uploadData(jiaBanHtml: result.1, csvNewContent: result.2)
-        }
-        DispatchQueue.global(qos: .background).async {
-            checkUpdate()
-            self.setIPtoQCloud()
-        }
+        updateTime(isRefreshClicked: true)
     }
     
     @objc func settingsClicked() {
@@ -181,12 +127,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApplication.shared.terminate(self)
     }
     
-    @objc func updateTime(isRefreshClicked: Bool, title: String) {
+    @objc func updateTime(isRefreshClicked: Bool) {
         let defaults = UserDefaults.standard
         let emoji = defaults.string(forKey: "emojiComboBox") ?? "🍎"
         
         guard let button = statusItem.button else { return }
-        
         guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty else {
             button.title = emoji + StatusBarTitle.setEmployeeID
             return
@@ -204,15 +149,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 let todayDateString = dateFormatter.string(from: todayDate)
                 
                 if self.shouldUpdateKeyChain(todayDate: todayDate, defaults: defaults, dateFormatter: dateFormatter) {
-                    let accessResult = findValidURLAndCheckAccess()
-                    if accessResult.1 == "true" {
+                    let accessResult = checkAccess()
+                    if accessResult == "true" {
                         defaults.set(encrypt(input: todayDateString), forKey: "keyChain")
-                        self.updateButtonTitle(with: emoji, isRefreshClicked: isRefreshClicked, title: title)
+                        self.updateButtonTitle(with: emoji, isRefreshClicked: isRefreshClicked)
                     } else {
-                        button.title = emoji + accessResult.1!
+                        button.title = emoji + accessResult
                     }
                 } else {
-                    self.updateButtonTitle(with: emoji, isRefreshClicked: isRefreshClicked, title: title)
+                    self.updateButtonTitle(with: emoji, isRefreshClicked: isRefreshClicked)
                 }
             }
         }
@@ -223,7 +168,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = "ddMMMyyyy"
         
-        let todayDateTer = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m4 --head 'http://hr.rsquanta.com/HRUI/Webui/' | grep -i 'date' | awk '{print $3$4$5}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
+        let todayDateTer = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m3 --head 'https://cn.bing.com/' | grep -i 'date' | awk '{print $3$4$5}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard let todayDate = dateFormatter.date(from: todayDateTer) else {
             return nil
@@ -255,27 +200,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
     
-    private func updateButtonTitle(with emoji: String, isRefreshClicked: Bool, title: String) {
-        let currentTime = title
-        let newTitle = emoji + currentTime
-        
-        if let button = statusItem.button {
-            let hidingItem = menu.item(withTitle: "Hiding")
-            let showingItem = menu.item(withTitle: "Showing")
-            
-            if hidingItem != nil && showingItem == nil {
-                button.title = newTitle
-            } else if hidingItem == nil && showingItem != nil && isRefreshClicked {
-                button.title = newTitle
-            } else if hidingItem == nil && showingItem == nil {
-                button.title = newTitle
+    private func updateButtonTitle(with emoji: String, isRefreshClicked: Bool) {
+        DispatchQueue.global(qos: .background).async {
+            let currentTime = owHandle()
+            let newTitle = emoji + currentTime
+            DispatchQueue.main.async {
+                if let button = self.statusItem.button {
+                    let hidingItem = self.menu.item(withTitle: "Hiding")
+                    let showingItem = self.menu.item(withTitle: "Showing")
+                    
+                    if hidingItem != nil && showingItem == nil {
+                        button.title = newTitle
+                    } else if hidingItem == nil && showingItem != nil && isRefreshClicked {
+                        button.title = newTitle
+                    } else if hidingItem == nil && showingItem == nil {
+                        button.title = newTitle
+                    }
+                    
+                    if isRefreshClicked {
+                        showingItem?.title = "Hiding"
+                    }
+                    
+                    self.lastTitle = newTitle
+                }
             }
-            
-            if isRefreshClicked {
-                showingItem?.title = "Hiding"
-            }
-            
-            lastTitle = newTitle
         }
     }
     

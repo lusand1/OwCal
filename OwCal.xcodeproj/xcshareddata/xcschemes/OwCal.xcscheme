@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DA1D66162C8FDFEE00A5651F"
-               BuildableName = "&#x5783;&#x573e;&#x8f6f;&#x4ef6;.app"
+               BuildableName = "OwCal.app"
                BlueprintName = "OwCal"
                ReferencedContainer = "container:OwCal.xcodeproj">
             </BuildableReference>
@@ -44,7 +44,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DA1D66162C8FDFEE00A5651F"
-            BuildableName = "&#x5783;&#x573e;&#x8f6f;&#x4ef6;.app"
+            BuildableName = "OwCal.app"
             BlueprintName = "OwCal"
             ReferencedContainer = "container:OwCal.xcodeproj">
          </BuildableReference>
@@ -68,7 +68,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DA1D66162C8FDFEE00A5651F"
-            BuildableName = "&#x5783;&#x573e;&#x8f6f;&#x4ef6;.app"
+            BuildableName = "OwCal.app"
             BlueprintName = "OwCal"
             ReferencedContainer = "container:OwCal.xcodeproj">
          </BuildableReference>

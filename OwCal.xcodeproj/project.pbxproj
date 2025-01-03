@@ -76,16 +76,14 @@
 		DA1D66B32C8FE89800A5651F /* ShellRun.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66AA2C8FE89800A5651F /* ShellRun.swift */; };
 		DA1D66B42C8FE89800A5651F /* NetworkAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66AB2C8FE89800A5651F /* NetworkAuth.swift */; };
 		DA1D66B52C8FE89800A5651F /* EnDeCrypt.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66AC2C8FE89800A5651F /* EnDeCrypt.swift */; };
-		DA1D66B72C8FE89800A5651F /* CheckNewVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66AE2C8FE89800A5651F /* CheckNewVersion.swift */; };
 		DA1D66B82C8FE89800A5651F /* OwHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66AF2C8FE89800A5651F /* OwHandle.swift */; };
 		DA1D66B92C8FE89800A5651F /* FindServerCheckAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66B02C8FE89800A5651F /* FindServerCheckAccess.swift */; };
 		DA1D66BA2C8FE89800A5651F /* MealEat.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66B12C8FE89800A5651F /* MealEat.swift */; };
-		DA1D66BD2C901C1C00A5651F /* .test.data in Resources */ = {isa = PBXBuildFile; fileRef = DA1D66BC2C901C1C00A5651F /* .test.data */; };
-		DA5180082C9BEF6E000B95FD /* UploadData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5180072C9BEF6D000B95FD /* UploadData.swift */; };
+		DA2F8F472CEF132900E44C09 /* .test.data in Resources */ = {isa = PBXBuildFile; fileRef = DA2F8F462CEF132900E44C09 /* .test.data */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		DA1D66172C8FDFEE00A5651F /* 垃圾软件.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "垃圾软件.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA1D66172C8FDFEE00A5651F /* OwCal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "OwCal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA1D661A2C8FDFEE00A5651F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DA1D661C2C8FDFEE00A5651F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		DA1D661E2C8FDFF100A5651F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -159,13 +157,11 @@
 		DA1D66AA2C8FE89800A5651F /* ShellRun.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShellRun.swift; sourceTree = "<group>"; };
 		DA1D66AB2C8FE89800A5651F /* NetworkAuth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkAuth.swift; sourceTree = "<group>"; };
 		DA1D66AC2C8FE89800A5651F /* EnDeCrypt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnDeCrypt.swift; sourceTree = "<group>"; };
-		DA1D66AE2C8FE89800A5651F /* CheckNewVersion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckNewVersion.swift; sourceTree = "<group>"; };
 		DA1D66AF2C8FE89800A5651F /* OwHandle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OwHandle.swift; sourceTree = "<group>"; };
 		DA1D66B02C8FE89800A5651F /* FindServerCheckAccess.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FindServerCheckAccess.swift; sourceTree = "<group>"; };
 		DA1D66B12C8FE89800A5651F /* MealEat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MealEat.swift; sourceTree = "<group>"; };
-		DA1D66BC2C901C1C00A5651F /* .test.data */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = .test.data; sourceTree = "<group>"; };
 		DA1D66C02C901FE100A5651F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DA5180072C9BEF6D000B95FD /* UploadData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadData.swift; sourceTree = "<group>"; };
+		DA2F8F462CEF132900E44C09 /* .test.data */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = .test.data; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,7 +186,7 @@
 		DA1D66182C8FDFEE00A5651F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DA1D66172C8FDFEE00A5651F /* 垃圾软件.app */,
+				DA1D66172C8FDFEE00A5651F /* OwCal.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -198,14 +194,12 @@
 		DA1D66192C8FDFEE00A5651F /* OwCal */ = {
 			isa = PBXGroup;
 			children = (
-				DA1D66BC2C901C1C00A5651F /* .test.data */,
-				DA1D66AE2C8FE89800A5651F /* CheckNewVersion.swift */,
+				DA2F8F462CEF132900E44C09 /* .test.data */,
 				DA1D66AC2C8FE89800A5651F /* EnDeCrypt.swift */,
 				DA1D66B02C8FE89800A5651F /* FindServerCheckAccess.swift */,
 				DA1D66B12C8FE89800A5651F /* MealEat.swift */,
 				DA1D66AB2C8FE89800A5651F /* NetworkAuth.swift */,
 				DA1D66A92C8FE89800A5651F /* OwCalculation.swift */,
-				DA5180072C9BEF6D000B95FD /* UploadData.swift */,
 				DA1D66AF2C8FE89800A5651F /* OwHandle.swift */,
 				DA1D66AA2C8FE89800A5651F /* ShellRun.swift */,
 				DA1D66292C8FE1EC00A5651F /* SwiftSoup */,
@@ -307,7 +301,7 @@
 			);
 			name = OwCal;
 			productName = OwCal;
-			productReference = DA1D66172C8FDFEE00A5651F /* 垃圾软件.app */;
+			productReference = DA1D66172C8FDFEE00A5651F /* OwCal.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -348,11 +342,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DA1D66BD2C901C1C00A5651F /* .test.data in Resources */,
 				DA1D66842C8FE20400A5651F /* PrivacyInfo.xcprivacy in Resources */,
 				DA1D66702C8FE20400A5651F /* Info.plist in Resources */,
 				DA1D666C2C8FE20400A5651F /* InfoMac.plist in Resources */,
 				DA1D661F2C8FDFF100A5651F /* Assets.xcassets in Resources */,
+				DA2F8F472CEF132900E44C09 /* .test.data in Resources */,
 				DA1D66222C8FDFF100A5651F /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -364,7 +358,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DA5180082C9BEF6E000B95FD /* UploadData.swift in Sources */,
 				DA1D66912C8FE20400A5651F /* StructuralEvaluator.swift in Sources */,
 				DA1D669A2C8FE20400A5651F /* Comment.swift in Sources */,
 				DA1D66A62C8FE20400A5651F /* TokeniserState.swift in Sources */,
@@ -403,7 +396,6 @@
 				DA1D66B32C8FE89800A5651F /* ShellRun.swift in Sources */,
 				DA1D66982C8FE20400A5651F /* DataNode.swift in Sources */,
 				DA1D66852C8FE20400A5651F /* HttpStatusException.swift in Sources */,
-				DA1D66B72C8FE89800A5651F /* CheckNewVersion.swift in Sources */,
 				DA1D669E2C8FE20400A5651F /* CharacterExt.swift in Sources */,
 				DA1D66732C8FE20400A5651F /* OrderedSet.swift in Sources */,
 				DA1D668F2C8FE20400A5651F /* SerializationException.swift in Sources */,
@@ -576,7 +568,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OwCal/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "垃圾软件";
+				INFOPLIST_KEY_CFBundleDisplayName = OwCal;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -589,7 +581,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = 1.01;
 				PRODUCT_BUNDLE_IDENTIFIER = com.personal.OwCal;
-				PRODUCT_NAME = "垃圾软件";
+				PRODUCT_NAME = "OwCal";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -608,7 +600,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OwCal/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "垃圾软件";
+				INFOPLIST_KEY_CFBundleDisplayName = OwCal;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -621,7 +613,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = 1.01;
 				PRODUCT_BUNDLE_IDENTIFIER = com.personal.OwCal;
-				PRODUCT_NAME = "垃圾软件";
+				PRODUCT_NAME = "OwCal";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
