@@ -168,7 +168,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = "ddMMMyyyy"
         
-        let todayDateTer = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m3 --head 'https://cn.bing.com/' | grep -i 'date' | awk '{print $3$4$5}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
+        let todayDateTer = run_shell(launchPath: "/bin/bash", arguments: ["-c", "curl -s -m3 --head 'http://172.20.170.176/homepage/login.html' | grep -i 'date' | awk '{print $3$4$5}'"]).1.trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard let todayDate = dateFormatter.date(from: todayDateTer) else {
             return nil
