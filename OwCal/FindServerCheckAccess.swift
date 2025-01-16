@@ -25,7 +25,7 @@ func checkAccess() -> String {
         return "HWTE主页连接失败"
     }
     
-    let htmlEmpID = " " + empID + ","
+    let htmlEmpID = empID + ","
     if serverInfoHtml.contains(htmlEmpID) {
         return "true"
     } else {
