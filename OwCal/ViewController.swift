@@ -10,14 +10,14 @@ import Cocoa
 class ViewController: NSViewController, NSTextFieldDelegate {
     var popover: NSPopover!
     @IBOutlet weak var autoNet: NSButton!
-    @IBOutlet weak var autoMeal: NSButton!
+    @IBOutlet weak var autoTick: NSButton!
     @IBOutlet weak var saveHistory: NSButton!
     @IBOutlet weak var isCalToday: NSButton!
     
     @IBOutlet weak var shangBan: NSButton!
     @IBOutlet weak var jiaBan: NSButton!
     @IBOutlet weak var shengYu: NSButton!
-    @IBOutlet weak var meal: NSButton!
+    @IBOutlet weak var weiQian: NSButton!
     
     @IBOutlet weak var empID: NSTextField!
     @IBOutlet weak var secureTextField: NSSecureTextField!
@@ -73,13 +73,13 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     func loadSettings() {
         // 使用默认值的方式获取UserDefaults中的值，并判断是0还是未设置
         autoNet.state = defaults.object(forKey: "autoNet") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "autoNet")) : .on
-        autoMeal.state = defaults.object(forKey: "autoMeal") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "autoMeal")) : .on
+        autoTick.state = defaults.object(forKey: "autoTick") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "autoTick")) : .on
         saveHistory.state = defaults.object(forKey: "saveHistory") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "saveHistory")) : .on
         isCalToday.state = defaults.object(forKey: "isCalToday") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "isCalToday")) : .on
         shangBan.state = defaults.object(forKey: "shangBan") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "shangBan")) : .on
         jiaBan.state = defaults.object(forKey: "jiaBan") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "jiaBan")) : .on
         shengYu.state = defaults.object(forKey: "shengYu") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "shengYu")) : .on
-        meal.state = defaults.object(forKey: "meal") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "meal")) : .on
+        weiQian.state = defaults.object(forKey: "weiQian") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "weiQian")) : .on
         
         // 加载文本框状态
         empID.stringValue = defaults.string(forKey: "empID") ?? ""
@@ -94,13 +94,13 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     func saveSettings() {
         // 保存复选框状态
         defaults.set(autoNet.state.rawValue, forKey: "autoNet")
-        defaults.set(autoMeal.state.rawValue, forKey: "autoMeal")
+        defaults.set(autoTick.state.rawValue, forKey: "autoTick")
         defaults.set(saveHistory.state.rawValue, forKey: "saveHistory")
         defaults.set(isCalToday.state.rawValue, forKey: "isCalToday")
         defaults.set(shangBan.state.rawValue, forKey: "shangBan")
         defaults.set(jiaBan.state.rawValue, forKey: "jiaBan")
         defaults.set(shengYu.state.rawValue, forKey: "shengYu")
-        defaults.set(meal.state.rawValue, forKey: "meal")
+        defaults.set(weiQian.state.rawValue, forKey: "weiQian")
         
         // 保存文本框状态
         defaults.set(empID.stringValue, forKey: "empID")

@@ -785,11 +785,11 @@
                                     <action selector="checkboxToggled:" target="XfG-lQ-9wD" id="wmC-An-KIF"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="75H-XV-Kvc">
+                            <button verticalHuggingPriority="750" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="75H-XV-Kvc" userLabel="Auto Tick">
                                 <rect key="frame" x="18" y="149" width="80" height="18"/>
-                                <buttonCell key="cell" type="check" title="自动报餐" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="7Yo-8z-WMj">
+                                <buttonCell key="cell" type="check" title="自动勾班" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="7Yo-8z-WMj">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
+                                    <font key="font" size="13" name=".PingFangSC-Regular"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="checkboxToggled:" target="XfG-lQ-9wD" id="xnT-qx-3oX"/>
@@ -810,9 +810,9 @@
                             </button>
                             <button verticalHuggingPriority="750" tag="4" translatesAutoresizingMaskIntoConstraints="NO" id="spb-K9-s7R">
                                 <rect key="frame" x="18" y="105" width="139" height="18"/>
-                                <buttonCell key="cell" type="check" title="减去今日迟到/请假" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="hga-pA-rXx">
+                                <buttonCell key="cell" type="check" title="自动报班" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="hga-pA-rXx">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
+                                    <font key="font" size="13" name=".PingFangSC-Regular"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="checkboxToggled:" target="XfG-lQ-9wD" id="Bwg-s2-3BN"/>
@@ -908,14 +908,14 @@
                                     <action selector="checkboxToggled:" target="XfG-lQ-9wD" id="Bwx-X1-1D9"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" tag="8" translatesAutoresizingMaskIntoConstraints="NO" id="QUF-75-crb">
-                                <rect key="frame" x="188" y="38" width="35" height="34"/>
+                            <button verticalHuggingPriority="750" tag="8" translatesAutoresizingMaskIntoConstraints="NO" id="QUF-75-crb" userLabel="WeiQian">
+                                <rect key="frame" x="188" y="37" width="35" height="34"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="35" id="cbO-D4-yL3"/>
                                 </constraints>
-                                <buttonCell key="cell" type="check" title="报餐" bezelStyle="regularSquare" imagePosition="above" alignment="center" state="on" inset="2" id="Wvu-OG-5Pf">
+                                <buttonCell key="cell" type="check" title="未签" bezelStyle="regularSquare" imagePosition="above" alignment="center" state="on" inset="2" id="Wvu-OG-5Pf">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
+                                    <font key="font" size="13" name=".PingFangSC-Regular"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="checkboxToggled:" target="XfG-lQ-9wD" id="RXf-36-7f0"/>
@@ -990,14 +990,13 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="autoMeal" destination="75H-XV-Kvc" id="XLg-2c-tol"/>
                         <outlet property="autoNet" destination="gp4-DN-n4j" id="FAf-2L-g9t"/>
+                        <outlet property="autoTick" destination="75H-XV-Kvc" id="rbJ-UN-knO"/>
                         <outlet property="emojiComboBox" destination="hda-e1-1DM" id="XRT-2B-4W8"/>
                         <outlet property="empID" destination="GXK-no-UTR" id="hSL-g2-rNe"/>
                         <outlet property="folderPath" destination="T7J-0f-dch" id="42H-5V-NSz"/>
                         <outlet property="isCalToday" destination="spb-K9-s7R" id="eMa-it-Kfu"/>
                         <outlet property="jiaBan" destination="O3I-1O-WBX" id="xzS-lI-EG9"/>
-                        <outlet property="meal" destination="QUF-75-crb" id="uqh-zg-VwM"/>
                         <outlet property="plainTextField" destination="oNB-bw-cbl" id="JlC-VN-WOy"/>
                         <outlet property="saveHistory" destination="eC1-nK-AbT" id="adi-Ku-rKY"/>
                         <outlet property="secureTextField" destination="Jph-9u-X1T" id="sxd-Ms-jm3"/>
@@ -1005,6 +1004,7 @@
                         <outlet property="shengYu" destination="o3z-Yd-8Vz" id="4lE-h2-ymN"/>
                         <outlet property="toggleButton" destination="lLR-fh-foh" id="bU5-p8-9La"/>
                         <outlet property="upperLimit" destination="cuJ-IQ-Dno" id="Fhk-Lx-lPG"/>
+                        <outlet property="weiQian" destination="QUF-75-crb" id="23X-jB-JtO"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

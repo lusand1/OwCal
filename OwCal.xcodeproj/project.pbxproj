@@ -78,12 +78,11 @@
 		DA1D66B52C8FE89800A5651F /* EnDeCrypt.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66AC2C8FE89800A5651F /* EnDeCrypt.swift */; };
 		DA1D66B82C8FE89800A5651F /* OwHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66AF2C8FE89800A5651F /* OwHandle.swift */; };
 		DA1D66B92C8FE89800A5651F /* FindServerCheckAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66B02C8FE89800A5651F /* FindServerCheckAccess.swift */; };
-		DA1D66BA2C8FE89800A5651F /* MealEat.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66B12C8FE89800A5651F /* MealEat.swift */; };
 		DA2F8F472CEF132900E44C09 /* .test.data in Resources */ = {isa = PBXBuildFile; fileRef = DA2F8F462CEF132900E44C09 /* .test.data */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		DA1D66172C8FDFEE00A5651F /* OwCal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "OwCal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA1D66172C8FDFEE00A5651F /* OwCal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OwCal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA1D661A2C8FDFEE00A5651F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DA1D661C2C8FDFEE00A5651F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		DA1D661E2C8FDFF100A5651F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -159,7 +158,6 @@
 		DA1D66AC2C8FE89800A5651F /* EnDeCrypt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnDeCrypt.swift; sourceTree = "<group>"; };
 		DA1D66AF2C8FE89800A5651F /* OwHandle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OwHandle.swift; sourceTree = "<group>"; };
 		DA1D66B02C8FE89800A5651F /* FindServerCheckAccess.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FindServerCheckAccess.swift; sourceTree = "<group>"; };
-		DA1D66B12C8FE89800A5651F /* MealEat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MealEat.swift; sourceTree = "<group>"; };
 		DA1D66C02C901FE100A5651F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DA2F8F462CEF132900E44C09 /* .test.data */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = .test.data; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -197,7 +195,6 @@
 				DA2F8F462CEF132900E44C09 /* .test.data */,
 				DA1D66AC2C8FE89800A5651F /* EnDeCrypt.swift */,
 				DA1D66B02C8FE89800A5651F /* FindServerCheckAccess.swift */,
-				DA1D66B12C8FE89800A5651F /* MealEat.swift */,
 				DA1D66AB2C8FE89800A5651F /* NetworkAuth.swift */,
 				DA1D66A92C8FE89800A5651F /* OwCalculation.swift */,
 				DA1D66AF2C8FE89800A5651F /* OwHandle.swift */,
@@ -422,7 +419,6 @@
 				DA1D668D2C8FE20400A5651F /* BooleanAttribute.swift in Sources */,
 				DA1D667B2C8FE20400A5651F /* NodeTraversor.swift in Sources */,
 				DA1D66A22C8FE20400A5651F /* XmlTreeBuilder.swift in Sources */,
-				DA1D66BA2C8FE89800A5651F /* MealEat.swift in Sources */,
 				DA1D66972C8FE20400A5651F /* Elements.swift in Sources */,
 				DA1D667C2C8FE20400A5651F /* Mutex.swift in Sources */,
 			);
@@ -579,9 +575,9 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.01;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.personal.OwCal;
-				PRODUCT_NAME = "OwCal";
+				PRODUCT_NAME = OwCal;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -611,9 +607,9 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.01;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.personal.OwCal;
-				PRODUCT_NAME = "OwCal";
+				PRODUCT_NAME = OwCal;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};

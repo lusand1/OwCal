@@ -18,6 +18,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let menu = NSMenu()
     var dateCheckTimer: Timer?
     var hasUpdatedForToday = false  // 添加一个标志位
+    // 在类属性中添加标志位（避免重复弹窗）
+    var hasShownModuleAlert = false
+    // 在类属性中添加存储缺失模块的数组
+    var missingModules: [String] = []
 
     enum StatusBarTitle {
         static let loading = "Loading..."
@@ -27,6 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        checkPythonEnvironment()
         configureStatusItem()
         configureMenu()
         addScreenUnlockObserver()
@@ -41,23 +46,166 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
         dateCheckTimer?.invalidate()  // 停止定时器
     }
+
+    // 修改检查Python环境的方法
+    func checkPythonEnvironment() {
+        // 每次检查前清空缺失模块数组
+        missingModules.removeAll()
+        
+        let pythonPathTask = Process()
+        pythonPathTask.launchPath = "/bin/bash"
+        pythonPathTask.arguments = ["-l", "-c", "which python3"]
+        
+        let pythonPathPipe = Pipe()
+        pythonPathTask.standardOutput = pythonPathPipe
+        let errorPipe = Pipe()
+        pythonPathTask.standardError = errorPipe
+        
+        do {
+            try pythonPathTask.run()
+            pythonPathTask.waitUntilExit()
+            
+            if pythonPathTask.terminationStatus == 0 {
+                let data = pythonPathPipe.fileHandleForReading.readDataToEndOfFile()
+                if let pythonPath = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
+//                    print("Python3 路径: \(pythonPath)")
+                    // 在 checkPythonEnvironment 方法中，当获取到 pythonPath 后添加
+                    UserDefaults.standard.set(pythonPath, forKey: "pythonPath")
+                    
+                    // 检查模块（先不弹窗，只收集缺失的）
+                    checkPythonModule(moduleName: "requests", pythonPath: pythonPath)
+                    checkPythonModule(moduleName: "requests_ntlm", pythonPath: pythonPath)
+                    
+                    // 所有模块检查完成后，统一弹窗
+                    if !missingModules.isEmpty {
+                        showMissingModulesAlert(pythonPath: pythonPath)
+                    }
+                }
+            } else {
+                let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+                let errorMsg = String(data: errorData, encoding: .utf8) ?? "未知错误"
+                showAlert(title: "Python3 不可用", message: "无法找到Python3环境，请先安装Python3。\n错误信息：\(errorMsg)")
+            }
+        } catch {
+            showAlert(title: "检查失败", message: "检查Python3环境时发生错误：\(error.localizedDescription)")
+        }
+    }
+
+    // 修改模块检查方法（只收集缺失模块，不单独弹窗）
+    private func checkPythonModule(moduleName: String, pythonPath: String) {
+        let moduleCheckTask = Process()
+        moduleCheckTask.launchPath = "/bin/bash"
+        moduleCheckTask.arguments = ["-l", "-c", "\(pythonPath) -c 'import \(moduleName)' 2>/dev/null && echo 'installed' || echo 'missing'"]
+        
+        let modulePipe = Pipe()
+        moduleCheckTask.standardOutput = modulePipe
+        
+        do {
+            try moduleCheckTask.run()
+            moduleCheckTask.waitUntilExit()
+            
+            let data = modulePipe.fileHandleForReading.readDataToEndOfFile()
+            if let result = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
+                if result == "missing" {
+                    missingModules.append(moduleName)  // 添加到缺失数组
+                    print("模块 \(moduleName) 未安装")
+                }
+            }
+        } catch {
+            showAlert(title: "检查失败", message: "检查模块 \(moduleName) 时发生错误：\(error.localizedDescription)")
+        }
+    }
+
+    // 新增：统一显示缺失模块的弹窗
+    private func showMissingModulesAlert(pythonPath: String) {
+        DispatchQueue.main.async {
+            let moduleList = self.missingModules.joined(separator: "、")
+            var installCommands = ""
+            
+            // 生成安装命令（多个模块可以合并安装）
+            if self.missingModules.count > 1 {
+                installCommands = "\(pythonPath) -m pip install \(self.missingModules.joined(separator: " "))"
+            } else {
+                installCommands = "\(pythonPath) -m pip install \(self.missingModules.first!)"
+            }
+            
+            let alert = NSAlert()
+            alert.messageText = "缺少必要模块"
+            alert.informativeText = "检测到以下模块未安装：\n\(moduleList)\n\n请使用以下命令安装：\n\(installCommands)"
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "知道了")
+            alert.runModal()
+        }
+    }
+
+    // 新增：弹窗提示工具
+    private func showAlert(title: String, message: String) {
+        // 确保在主线程弹窗
+        DispatchQueue.main.async {
+            // 避免重复弹窗
+            guard !self.hasShownModuleAlert else { return }
+            self.hasShownModuleAlert = true
+            
+            let alert = NSAlert()
+            alert.messageText = title
+            alert.informativeText = message
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "知道了")
+            alert.runModal()
+        }
+    }
     
     private func startDateCheckTimer() {
         // 每2小时检查一次
-        dateCheckTimer = Timer.scheduledTimer(timeInterval: 7200, target: self, selector: #selector(checkDateAndUpdate), userInfo: nil, repeats: true)
+        dateCheckTimer = Timer.scheduledTimer(timeInterval: 3600, target: self, selector: #selector(checkDateAndUpdate), userInfo: nil, repeats: true)
 //        dateCheckTimer = Timer.scheduledTimer(timeInterval: 3, target: self, selector: #selector(checkDateAndUpdate), userInfo: nil, repeats: true)
     }
     
     @objc private func checkDateAndUpdate() {
         let calendar = Calendar.current
+        let now = Date()
         let day = calendar.component(.day, from: Date())
         
-        if day == 26 && !hasUpdatedForToday {  // 如果是26号且未更新过
+        if day == 25 && !hasUpdatedForToday {  // 如果是25号且未更新过
             // 触发更新
             updateTime(isRefreshClicked: true)
             hasUpdatedForToday = true  // 标记已经更新过
-        } else if day != 26 {
+        } else if day != 25 {
             hasUpdatedForToday = false  // 重置标志位，准备下个月更新
+        }
+        
+        // 新增：判断是否在每天6:45-8:00之间
+        let hour = calendar.component(.hour, from: now)
+        let minute = calendar.component(.minute, from: now)
+        
+        // 检查当前时间是否在目标时间段内
+        let isInTimeRange: Bool
+        if hour == 6 {
+            // 6点时，需要分钟数≥45
+            isInTimeRange = minute >= 45
+        } else if hour == 7 {
+            // 7点整段都在范围内
+            isInTimeRange = true
+        } else if hour == 8 {
+            // 8点整段都在范围内
+            isInTimeRange = true
+        } else {
+            isInTimeRange = false
+        }
+    
+        // 如果在时间范围内，且autoNet开启，则执行网络认证
+        if isInTimeRange {
+            let autoNet = getStateValue(forKey: "autoNet")
+            if autoNet.rawValue == 1 {
+                let defaults = UserDefaults.standard
+                guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty,
+                      let hrPwd = defaults.string(forKey: "hrPwd"), !hrPwd.isEmpty else {
+                    return
+                }
+                DispatchQueue.global(qos: .background).async {
+                    networkAuth(id: empID, pwd: hrPwd)
+                }
+            }
         }
     }
     
