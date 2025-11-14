@@ -78,7 +78,7 @@
 		DA1D66B52C8FE89800A5651F /* EnDeCrypt.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66AC2C8FE89800A5651F /* EnDeCrypt.swift */; };
 		DA1D66B82C8FE89800A5651F /* OwHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66AF2C8FE89800A5651F /* OwHandle.swift */; };
 		DA1D66B92C8FE89800A5651F /* FindServerCheckAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D66B02C8FE89800A5651F /* FindServerCheckAccess.swift */; };
-		DA2F8F472CEF132900E44C09 /* .test.data in Resources */ = {isa = PBXBuildFile; fileRef = DA2F8F462CEF132900E44C09 /* .test.data */; };
+		DA24C8822EC2D4E200C1158C /* MealEat.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA24C8812EC2D4E200C1158C /* MealEat.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -159,7 +159,7 @@
 		DA1D66AF2C8FE89800A5651F /* OwHandle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OwHandle.swift; sourceTree = "<group>"; };
 		DA1D66B02C8FE89800A5651F /* FindServerCheckAccess.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FindServerCheckAccess.swift; sourceTree = "<group>"; };
 		DA1D66C02C901FE100A5651F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DA2F8F462CEF132900E44C09 /* .test.data */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = .test.data; sourceTree = "<group>"; };
+		DA24C8812EC2D4E200C1158C /* MealEat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealEat.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -192,7 +192,6 @@
 		DA1D66192C8FDFEE00A5651F /* OwCal */ = {
 			isa = PBXGroup;
 			children = (
-				DA2F8F462CEF132900E44C09 /* .test.data */,
 				DA1D66AC2C8FE89800A5651F /* EnDeCrypt.swift */,
 				DA1D66B02C8FE89800A5651F /* FindServerCheckAccess.swift */,
 				DA1D66AB2C8FE89800A5651F /* NetworkAuth.swift */,
@@ -206,6 +205,7 @@
 				DA1D66202C8FDFF100A5651F /* Main.storyboard */,
 				DA1D66232C8FDFF100A5651F /* OwCal.entitlements */,
 				DA1D66C02C901FE100A5651F /* Info.plist */,
+				DA24C8812EC2D4E200C1158C /* MealEat.swift */,
 			);
 			path = OwCal;
 			sourceTree = "<group>";
@@ -343,7 +343,6 @@
 				DA1D66702C8FE20400A5651F /* Info.plist in Resources */,
 				DA1D666C2C8FE20400A5651F /* InfoMac.plist in Resources */,
 				DA1D661F2C8FDFF100A5651F /* Assets.xcassets in Resources */,
-				DA2F8F472CEF132900E44C09 /* .test.data in Resources */,
 				DA1D66222C8FDFF100A5651F /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -385,6 +384,7 @@
 				DA1D66B82C8FE89800A5651F /* OwHandle.swift in Sources */,
 				DA1D66992C8FE20400A5651F /* Token.swift in Sources */,
 				DA1D66742C8FE20400A5651F /* Node.swift in Sources */,
+				DA24C8822EC2D4E200C1158C /* MealEat.swift in Sources */,
 				DA1D66B42C8FE89800A5651F /* NetworkAuth.swift in Sources */,
 				DA1D66A12C8FE20400A5651F /* TokenQueue.swift in Sources */,
 				DA1D66722C8FE20400A5651F /* Whitelist.swift in Sources */,

@@ -10,7 +10,7 @@ import Cocoa
 class ViewController: NSViewController, NSTextFieldDelegate {
     var popover: NSPopover!
     @IBOutlet weak var autoNet: NSButton!
-    @IBOutlet weak var autoTick: NSButton!
+    @IBOutlet weak var autoMeal: NSButton!
     @IBOutlet weak var saveHistory: NSButton!
     @IBOutlet weak var isCalToday: NSButton!
     
@@ -73,7 +73,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     func loadSettings() {
         // 使用默认值的方式获取UserDefaults中的值，并判断是0还是未设置
         autoNet.state = defaults.object(forKey: "autoNet") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "autoNet")) : .on
-        autoTick.state = defaults.object(forKey: "autoTick") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "autoTick")) : .on
+        autoMeal.state = defaults.object(forKey: "autoMeal") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "autoMeal")) : .off
         saveHistory.state = defaults.object(forKey: "saveHistory") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "saveHistory")) : .on
         isCalToday.state = defaults.object(forKey: "isCalToday") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "isCalToday")) : .on
         shangBan.state = defaults.object(forKey: "shangBan") != nil ? NSControl.StateValue(rawValue: defaults.integer(forKey: "shangBan")) : .on
@@ -94,7 +94,7 @@ class ViewController: NSViewController, NSTextFieldDelegate {
     func saveSettings() {
         // 保存复选框状态
         defaults.set(autoNet.state.rawValue, forKey: "autoNet")
-        defaults.set(autoTick.state.rawValue, forKey: "autoTick")
+        defaults.set(autoMeal.state.rawValue, forKey: "autoMeal")
         defaults.set(saveHistory.state.rawValue, forKey: "saveHistory")
         defaults.set(isCalToday.state.rawValue, forKey: "isCalToday")
         defaults.set(shangBan.state.rawValue, forKey: "shangBan")

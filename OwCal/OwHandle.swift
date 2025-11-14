@@ -18,35 +18,7 @@ func getStateValue(forKey key: String, defaultValue: Int = 1) -> NSControl.State
     }
 }
 
-func owHandle() -> String {
-    var fullTitle = "[***]"
-    let defaults = UserDefaults.standard
-    
-    guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty else {
-        return "[请设置工号]"
-    }
-    guard let hrPwd = defaults.string(forKey: "secureTextField"), !hrPwd.isEmpty else {
-        return "[请设置密码]"
-    }
-    
-    let upLimit = defaults.string(forKey: "upperLimit") ?? "60"
-    let fileManager = FileManager.default
-    let desktopURL = fileManager.urls(for: .desktopDirectory, in: .userDomainMask).first!
-    let folderPath = defaults.string(forKey: "folderPath") ?? desktopURL.appendingPathComponent("加班历史记录").path
-    
-    DispatchQueue.global(qos: .background).async {
-        let autoNet = getStateValue(forKey: "autoNet")
-        if autoNet.rawValue == 1 {
-            networkAuth(id: empID, pwd: hrPwd)
-        }
-    }
-    
-    let saveHistory = getStateValue(forKey: "saveHistory")
-    let isCalToday = getStateValue(forKey: "isCalToday")
-    
-//    let jiaBanHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", "cat $HOME/Desktop/加班申请.html"]).1
-    if let pythonPath = UserDefaults.standard.string(forKey: "pythonPath") {
-        let ntlm_crawler = """
+let ntlm_crawler = """
 \"import sys
 import json
 import base64
@@ -142,6 +114,17 @@ if __name__ == '__main__':
     username = sys.argv[3]
     password = sys.argv[4]
     data = sys.argv[5] if len(sys.argv) > 5 else None
+
+    # 新增：将JSON字符串解析为字典
+    if data is not None:
+        try:
+            data = json.loads(data)
+        except json.JSONDecodeError as e:
+            print(json.dumps({
+                'status': 'error',
+                'message': f'数据格式错误：{str(e)}'
+            }))
+            sys.exit(1)
     
     if method.lower() == 'get':
         result = ntlm_get(url, username, password)
@@ -150,9 +133,55 @@ if __name__ == '__main__':
     else:
         result = {'status': 'error', 'message': '不支持的方法'}
     
-    print(base64.b64encode(result.get('content', '未找到楼上考勤卡机不区分上').encode('utf-8')).decode('utf-8'))\"
+    print(base64.b64encode(result.get('content', '无法解析网页内容').encode('utf-8')).decode('utf-8'))\"
 """
 
+
+func owHandle() -> String {
+    var fullTitle = "[***]"
+    let defaults = UserDefaults.standard
+    
+    guard let empID = defaults.string(forKey: "empID"), !empID.isEmpty else {
+        return "[请设置工号]"
+    }
+    guard let hrPwd = defaults.string(forKey: "secureTextField"), !hrPwd.isEmpty else {
+        return "[请设置密码]"
+    }
+    
+    let upLimit = defaults.string(forKey: "upperLimit") ?? "60"
+    let fileManager = FileManager.default
+    let desktopURL = fileManager.urls(for: .desktopDirectory, in: .userDomainMask).first!
+    let folderPath = defaults.string(forKey: "folderPath") ?? desktopURL.appendingPathComponent("加班历史记录").path
+    
+    DispatchQueue.global(qos: .background).async {
+        let autoNet = getStateValue(forKey: "autoNet")
+        if autoNet.rawValue == 1 {
+            networkAuth(id: empID, pwd: hrPwd)
+        }
+    }
+    
+    let saveHistory = getStateValue(forKey: "saveHistory")
+    
+    if let pythonPath = UserDefaults.standard.string(forKey: "pythonPath") {
+        var mealTitle = ""
+        DispatchQueue.global(qos: .background).async {
+            let autoMeal = getStateValue(forKey: "autoMeal")
+            if autoMeal.rawValue == 1 {
+                let isMeal = mealEat(pythonPath: pythonPath, ntlm_crawler: ntlm_crawler, id: empID, pwd: hrPwd)
+                if isMeal == "Y" {
+                    mealTitle = "🍱" //
+                }
+            }
+            DispatchQueue.main.async {
+                if let appDelegate = NSApp.delegate as? AppDelegate, let button = appDelegate.statusItem?.button {
+                    if !button.title.contains("🍱") && !button.title.contains("Loading") && !button.title.contains("Refreshing") {
+                        button.title = button.title + mealTitle
+                    }
+                }
+            }
+        }
+        
+        //    let jiaBanHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", "cat $HOME/Desktop/加班申请.html"]).1
         let jiaBanHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", pythonPath + " -c \(ntlm_crawler)" + " get \"http://hr.rsquanta.com/QSMCHR/Attn/Modify_Attandence_Assistant_Min.aspx?Flag=4&languageType=zh-CN\" \(empID) \"\(hrPwd)\" | base64 -d"]).1
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
@@ -252,14 +281,6 @@ if __name__ == '__main__':
                         }
                         
                         try "日期,上班,下班,班别,加班m,🏡🔧h,签核\n".write(to: owCsvPath, atomically: true, encoding: .utf8)
-                        
-                        if isCalToday.rawValue == 0 {
-                            continue
-                        }
-                        
-                        if try gvAttnCells.get(3).text().hasSuffix("25") {
-                            continue
-                        }
                     } else {
                         if (try gvAttnCells.get(4).text().isEmpty && !gvAttnCells.get(5).text().isEmpty) {
                             return "[\(try gvAttnCells.get(3).text())上班时间为空]"
@@ -298,7 +319,7 @@ if __name__ == '__main__':
                             }
                         }
                         
-                        if try gvAttnCells.get(26).text() != "Y" && totalOwMin > 0 {
+                        if try gvAttnCells.get(26).text() != "Y" && today_OwMin > 0 {
                             totalWeiQianOwMin += today_OwMin
                         }
                                             
@@ -352,7 +373,7 @@ if __name__ == '__main__':
                 }
                 
                 // 计算原始值（保留两位小数的逻辑不变）
-                let rawValue = floor(Double(totalWeiQianOwMin) / 60 * 100) / 100
+                let totalWeiQianRawValue = floor(Double(totalWeiQianOwMin) / 60 * 100) / 100
 
                 // 创建数字格式化器
                 let formatter = NumberFormatter()
@@ -362,11 +383,11 @@ if __name__ == '__main__':
                 formatter.roundingMode = .down  // 保持与floor一致的向下取整逻辑
 
                 // 格式化并转换为字符串
-                let stringWeiQianOwTime = formatter.string(from: NSNumber(value: rawValue)) ?? "\(rawValue)"
+                let stringWeiQianOwTime = formatter.string(from: NSNumber(value: totalWeiQianRawValue)) ?? "\(totalWeiQianRawValue)"
                 
-                var titleWeiQian = "[☒ " + stringWeiQianOwTime + "H]"
+                var titleWeiQian = "[❗️" + stringWeiQianOwTime + "H]"
                 let isShowWeiQian = getStateValue(forKey: "weiQian")
-                if isShowWeiQian.rawValue == 0 {
+                if isShowWeiQian.rawValue == 0 || totalWeiQianOwMin == 0 {
                     titleWeiQian = ""
                 }
                 
@@ -381,7 +402,7 @@ if __name__ == '__main__':
                     titleRestOwTime = ""
                 }
 
-                fullTitle = "\(titleShBan) \(titleOwTime) \(titleRestOwTime) \(titleWeiQian)"
+                fullTitle = "\(titleShBan) \(titleOwTime) \(titleRestOwTime) \(titleWeiQian) \(mealTitle)"
             } catch {
     //            print("解析或计算加班数据时出错: \(error)")
             }
