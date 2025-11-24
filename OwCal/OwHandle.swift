@@ -244,7 +244,6 @@ func owHandle() -> String {
                         if try gvAttnCells.get(4).text().isEmpty {
                             DispatchQueue.global(qos: .background).async {
                                 do {
-                                    var onclickShBan = "----"
                                     let onclickHtml = try gvAttnCells.get(3).select("span").first()!
                                     let onclickURL = try onclickHtml.attr("onclick").split(separator: "'")[1]
                                     let shangBanHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", pythonPath + " -c \(ntlm_crawler)" + " get \"http://hr.rsquanta.com/QSMCHR/Attn/\(onclickURL)\" \(empID) \"\(hrPwd)\" | base64 -d"]).1
@@ -260,15 +259,15 @@ func owHandle() -> String {
                                         }
                                         
                                         if try element.text().contains("考勤机刷卡") && faceTime != "----" {
-                                            onclickShBan = try element.select("td").get(2).text()
+                                            titleShBan = try element.select("td").get(2).text()
                                             break
                                         }
                                     }
                                     DispatchQueue.main.async {
                                         if let appDelegate = NSApp.delegate as? AppDelegate, let button = appDelegate.statusItem?.button {
                                             if button.title.contains("[上班 --:--]") {
-                                                onclickShBan = "[上班 " + onclickShBan.prefix(2) + ":" + onclickShBan.suffix(2) + "]"
-                                                button.title = button.title.replacingOccurrences(of: "[上班 --:--]", with: onclickShBan)
+                                                titleShBan = "[上班 " + titleShBan.prefix(2) + ":" + titleShBan.suffix(2) + "]"
+                                                button.title = button.title.replacingOccurrences(of: "[上班 --:--]", with: titleShBan)
                                             }
                                         }
                                     }
