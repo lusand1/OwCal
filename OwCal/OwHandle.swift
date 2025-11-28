@@ -215,6 +215,7 @@ func owHandle() -> String {
                 let gvAttnRows = try gvAttnTable.select("tr")
                 let owCsvPath = URL(fileURLWithPath: desktopURL.absoluteString).appendingPathComponent("ow.csv")
                 var titleShBan = "----"
+                var tickEmoji = "❗️"
                 
                 for i in 1..<gvAttnRows.size() {
                     let gvAttnRow = gvAttnRows.get(i)
@@ -318,8 +319,17 @@ func owHandle() -> String {
                             }
                         }
                         
-                        if try gvAttnCells.get(26).text() != "Y" && today_OwMin > 0 {
-                            totalWeiQianOwMin += today_OwMin
+                        if today_OwMin > 0 {
+                            if try gvAttnCells.get(26).text() != "Y" {
+                                totalWeiQianOwMin += today_OwMin
+                                if let checkbox1 = try gvAttnCells.get(8).select("input[type=checkbox]").first(),
+                                   let checkbox2 = try gvAttnCells.get(9).select("input[type=checkbox]").first(),
+                                   let checkbox3 = try gvAttnCells.get(10).select("input[type=checkbox]").first() {
+                                    if !checkbox1.hasAttr("checked") && !checkbox2.hasAttr("checked") && !checkbox3.hasAttr("checked") {
+                                        tickEmoji = "❣️"
+                                    }
+                                }
+                            }
                         }
                                             
                         totalOwMin += today_OwMin
@@ -384,7 +394,7 @@ func owHandle() -> String {
                 // 格式化并转换为字符串
                 let stringWeiQianOwTime = formatter.string(from: NSNumber(value: totalWeiQianRawValue)) ?? "\(totalWeiQianRawValue)"
                 
-                var titleWeiQian = "[❗️" + stringWeiQianOwTime + "H]"
+                var titleWeiQian = "[" + tickEmoji + stringWeiQianOwTime + "H]"
                 let isShowWeiQian = getStateValue(forKey: "weiQian")
                 if isShowWeiQian.rawValue == 0 || totalWeiQianOwMin == 0 {
                     titleWeiQian = ""
