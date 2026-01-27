@@ -18,8 +18,17 @@ func getStateValue(forKey key: String, defaultValue: Int = 1) -> NSControl.State
     }
 }
 
+func timeToMinutes(_ t: String) -> Int? {
+    guard t.count == 4,
+          let h = Int(t.prefix(2)),
+          let m = Int(t.suffix(2)) else { return nil }
+    return h * 60 + m
+}
+
 let ntlm_crawler = """
-\"import sys
+\"import warnings
+warnings.filterwarnings('ignore', message='urllib3 v2 only supports OpenSSL 1.1.1+')
+import sys
 import json
 import base64
 import requests
@@ -213,7 +222,7 @@ func owHandle() -> String {
                 let gvAttnDoc: Document = try parse(jiaBanHtml)
                 let gvAttnTable = try gvAttnDoc.select("table#gvAttn").first()!
                 let gvAttnRows = try gvAttnTable.select("tr")
-                let owCsvPath = URL(fileURLWithPath: desktopURL.absoluteString).appendingPathComponent("ow.csv")
+                let owCsvPath = URL(fileURLWithPath: desktopURL.path).appendingPathComponent("ow.csv")
                 var titleShBan = "----"
                 var tickEmoji = "❗️"
                 
@@ -253,16 +262,38 @@ func owHandle() -> String {
                                     // 使用选择器选择包含特定日期的 tr 元素
                                     let selector = "tr:contains(\(try gvAttnCells.get(3).text()))"
                                     let elements = try gvRderDoc.select(selector)
-                                    var faceTime = "----"
-                                    for element in elements.array() {
-                                        if try element.text().contains("人脸识别刷卡") {
-                                            faceTime = try element.select("td").get(2).text()
+                                    let rows = elements.array()
+                                    for i in 0..<(rows.count - 1) {
+
+                                        let row1 = rows[i]
+                                        let row2 = rows[i + 1]
+
+                                        let text1 = try row1.text()
+                                        let text2 = try row2.text()
+
+                                        let isFace1 = text1.contains("人脸识别刷卡")
+                                        let isFace2 = text2.contains("人脸识别刷卡")
+
+                                        let isCard1 = text1.contains("考勤机刷卡")
+                                        let isCard2 = text2.contains("考勤机刷卡")
+
+                                        // 必须一人脸一考勤
+                                        guard (isFace1 && isCard2) || (isCard1 && isFace2) else {
+                                            continue
                                         }
-                                        
-                                        if try element.text().contains("考勤机刷卡") && faceTime != "----" {
-                                            titleShBan = try element.select("td").get(2).text()
-                                            break
+
+                                        let time1 = try row1.select("td").get(2).text()
+                                        let time2 = try row2.select("td").get(2).text()
+
+                                        guard let t1 = timeToMinutes(time1),
+                                              let t2 = timeToMinutes(time2),
+                                              abs(t1 - t2) <= 30 else {
+                                            continue
                                         }
+
+                                        // 上班时间取“考勤机刷卡”的那一条
+                                        titleShBan = isCard1 ? time1 : time2
+                                        break
                                     }
                                     DispatchQueue.main.async {
                                         if let appDelegate = NSApp.delegate as? AppDelegate, let button = appDelegate.statusItem?.button {
@@ -279,8 +310,11 @@ func owHandle() -> String {
                         } else {
                             titleShBan = try gvAttnCells.get(4).text()
                         }
-                        
-                        try "日期,上班,下班,班别,加班m,🏡🔧h,签核\n".write(to: owCsvPath, atomically: true, encoding: .utf8)
+                        do {
+                            try "日期,上班,下班,班别,加班m,🏡🔧h,签核\n".write(to: owCsvPath, atomically: true, encoding: .utf8)
+                        } catch {
+                            print("写入文件失败，错误信息：\(error)")
+                        }
                     } else {
                         if (try gvAttnCells.get(4).text().isEmpty && !gvAttnCells.get(5).text().isEmpty) {
                             return "[\(try gvAttnCells.get(3).text())上班时间为空]"
