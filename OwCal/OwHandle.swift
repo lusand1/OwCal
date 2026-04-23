@@ -190,7 +190,7 @@ func owHandle() -> String {
             }
         }
         
-        //    let jiaBanHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", "cat $HOME/Desktop/加班申请.html"]).1
+//            let jiaBanHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", "cat $HOME/Desktop/加班申请.html"]).1
         let jiaBanHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", pythonPath + " -c \(ntlm_crawler)" + " get \"http://hr.rsquanta.com/QSMCHR/Attn/Modify_Attandence_Assistant_Min.aspx?Flag=4&languageType=zh-CN\" \(empID) \"\(hrPwd)\" | base64 -d"]).1
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
@@ -224,6 +224,7 @@ func owHandle() -> String {
                 let gvAttnRows = try gvAttnTable.select("tr")
                 let owCsvPath = URL(fileURLWithPath: desktopURL.path).appendingPathComponent("ow.csv")
                 var titleShBan = "----"
+                var faceTimes: [(time: Int, raw: String)] = []
                 var tickEmoji = "❗️"
                 
                 for i in 1..<gvAttnRows.size() {
@@ -257,43 +258,41 @@ func owHandle() -> String {
                                     let onclickHtml = try gvAttnCells.get(3).select("span").first()!
                                     let onclickURL = try onclickHtml.attr("onclick").split(separator: "'")[1]
                                     let shangBanHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", pythonPath + " -c \(ntlm_crawler)" + " get \"http://hr.rsquanta.com/QSMCHR/Attn/\(onclickURL)\" \(empID) \"\(hrPwd)\" | base64 -d"]).1
-                                    //                            let shangBanHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", "cat $HOME/Desktop/刷卡记录查询.html"]).1
+//                                    let shangBanHtml = run_shell(launchPath: "/bin/bash", arguments: ["-c", "cat $HOME/Desktop/刷卡记录查询.html"]).1
                                     let gvRderDoc: Document = try parse(shangBanHtml)
                                     // 使用选择器选择包含特定日期的 tr 元素
                                     let selector = "tr:contains(\(try gvAttnCells.get(3).text()))"
                                     let elements = try gvRderDoc.select(selector)
                                     let rows = elements.array()
-                                    for i in 0..<(rows.count - 1) {
-
-                                        let row1 = rows[i]
-                                        let row2 = rows[i + 1]
-
-                                        let text1 = try row1.text()
-                                        let text2 = try row2.text()
-
-                                        let isFace1 = text1.contains("人脸识别刷卡")
-                                        let isFace2 = text2.contains("人脸识别刷卡")
-
-                                        let isCard1 = text1.contains("考勤机刷卡")
-                                        let isCard2 = text2.contains("考勤机刷卡")
-
-                                        // 必须一人脸一考勤
-                                        guard (isFace1 && isCard2) || (isCard1 && isFace2) else {
+                                    for row in rows {
+                                        let text = try row.text()
+                                        let timeStr = try row.select("td").get(2).text()
+                                        
+                                        guard let time = timeToMinutes(timeStr) else {
                                             continue
                                         }
-
-                                        let time1 = try row1.select("td").get(2).text()
-                                        let time2 = try row2.select("td").get(2).text()
-
-                                        guard let t1 = timeToMinutes(time1),
-                                              let t2 = timeToMinutes(time2),
-                                              abs(t1 - t2) <= 30 else {
+                                        let isFace = text.contains("人脸识别刷卡")
+                                        let isCard = text.contains("考勤机刷卡")
+                                        
+                                        // 1. 如果是人脸 -> 记录
+                                        if isFace {
+                                            faceTimes.append((time, timeStr))
                                             continue
                                         }
-
-                                        // 上班时间取“考勤机刷卡”的那一条
-                                        titleShBan = isCard1 ? time1 : time2
-                                        break
+                                        
+                                        // 2. 如果是考勤机 -> 找匹配的人脸
+                                        if isCard {
+                                            // 从最近的人脸开始找（更符合真实顺序）
+                                            for face in faceTimes.reversed() {
+                                                if abs(face.time - time) <= 30 {
+                                                    titleShBan = timeStr //取考勤机时间
+                                                    break
+                                                }
+                                            }
+                                            if titleShBan != "----" {
+                                                break //找到上班，直接结束
+                                            }
+                                        }
                                     }
                                     DispatchQueue.main.async {
                                         if let appDelegate = NSApp.delegate as? AppDelegate, let button = appDelegate.statusItem?.button {
