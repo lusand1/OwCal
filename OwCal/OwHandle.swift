@@ -225,6 +225,7 @@ func owHandle() -> String {
                 let owCsvPath = URL(fileURLWithPath: desktopURL.path).appendingPathComponent("ow.csv")
                 var titleShBan = "----"
                 var faceTimes: [(time: Int, raw: String)] = []
+                var cardTimes: [(time: Int, raw: String)] = []
                 var tickEmoji = "❗️"
                 
                 for i in 1..<gvAttnRows.size() {
@@ -274,13 +275,24 @@ func owHandle() -> String {
                                         let isFace = text.contains("人脸识别刷卡")
                                         let isCard = text.contains("考勤机刷卡")
                                         
-                                        // 1. 如果是人脸 -> 记录
+                                        // 1. 如果是人脸 -> 先尝试匹配已有考勤机
                                         if isFace {
+                                            for card in cardTimes.reversed() {
+                                                if abs(card.time - time) <= 30 {
+                                                    titleShBan = card.raw  // 上班时间取考勤机
+                                                    break
+                                                }
+                                            }
+                                            
+                                            if titleShBan != "----" {
+                                                break //找到上班，直接结束
+                                            }
+                                            
                                             faceTimes.append((time, timeStr))
                                             continue
                                         }
                                         
-                                        // 2. 如果是考勤机 -> 找匹配的人脸
+                                        // 2. 如果是考勤机 -> 尝试匹配已有的人脸
                                         if isCard {
                                             // 从最近的人脸开始找（更符合真实顺序）
                                             for face in faceTimes.reversed() {
@@ -292,6 +304,7 @@ func owHandle() -> String {
                                             if titleShBan != "----" {
                                                 break //找到上班，直接结束
                                             }
+                                            cardTimes.append((time, timeStr))
                                         }
                                     }
                                     DispatchQueue.main.async {
