@@ -265,6 +265,7 @@ func owHandle() -> String {
                                     let selector = "tr:contains(\(try gvAttnCells.get(3).text()))"
                                     let elements = try gvRderDoc.select(selector)
                                     let rows = elements.array()
+                                    var found = false
                                     for row in rows {
                                         let text = try row.text()
                                         let timeStr = try row.select("td").get(2).text()
@@ -280,11 +281,12 @@ func owHandle() -> String {
                                             for card in cardTimes.reversed() {
                                                 if abs(card.time - time) <= 30 {
                                                     titleShBan = card.raw  // 上班时间取考勤机
+                                                    found = true
                                                     break
                                                 }
                                             }
                                             
-                                            if titleShBan != "----" {
+                                            if found {
                                                 break //找到上班，直接结束
                                             }
                                             
@@ -298,10 +300,11 @@ func owHandle() -> String {
                                             for face in faceTimes.reversed() {
                                                 if abs(face.time - time) <= 30 {
                                                     titleShBan = timeStr //取考勤机时间
+                                                    found = true
                                                     break
                                                 }
                                             }
-                                            if titleShBan != "----" {
+                                            if found {
                                                 break //找到上班，直接结束
                                             }
                                             cardTimes.append((time, timeStr))
